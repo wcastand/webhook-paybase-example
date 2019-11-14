@@ -10,12 +10,16 @@ const verify = (body, signature) => {
   const verifyBase = crypto.createVerify('sha256WithRSAEncryption')
   verifyBase.update(typeof body === 'string' ? body : JSON.stringify(body))
   verifyBase.end()
-  return verifyBase.verify({ key: PAYBASE_PUBLIC_KEY }, signature, 'base64')
+  return verifyBase.verify(PAYBASE_PUBLIC_KEY, signature, 'base64')
 }
 
 module.exports = (req, res) => {
   const { body, headers } = req
   if (body.type === 'integration_handshake') res.status(204).end()
-  console.log('verify', headers['x-signature'], verify(body, headers['x-signature']))
-  res.status(200).end(body.toString())
+  else {
+    console.log('PUBLIC_KEY', PAYBASE_PUBLIC_KEY)
+    console.log('verify', headers['x-signature'], verify(body, headers['x-signature']))
+    res.status(200).end(body.toString())
+  }
+  res.status(204)
 }
